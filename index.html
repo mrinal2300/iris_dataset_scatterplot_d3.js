@@ -1,0 +1,180 @@
+<html>
+<head>
+<title>Iris_dataset</title>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<style>
+
+svg {
+  font: 10px sans-serif;
+  padding: 50px;
+  
+}
+
+svg1 {
+  font: 10px sans-serif;
+  padding: 50px;
+  
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.grid .tick {
+    stroke: lightgrey;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
+}
+
+
+
+</style>
+</head>
+<body>
+
+</body>
+<script>
+
+var svg = d3.select("body").append("svg").attr("width", 500).attr("height", 500);
+var svg1 = d3.select("body").append("svg").attr("width", 500).attr("height", 500);
+
+var x_scale = d3.scale.linear().range([0, 500]);
+var y_scale = d3.scale.linear().range([500, 0]);
+var x1_scale = d3.scale.linear().range([0, 500]);
+var y1_scale = d3.scale.linear().range([500, 0]);
+var colorColumn = "species";
+var colorScale = d3.scale.category10();
+
+var g = svg.append("g").attr("transform", "translate(-5)");
+var g1 = svg1.append("g").attr("transform", "translate(-5,5)");
+
+var xAxisG = g.append("g").attr("class", "x axis").attr("transform", "translate(0,500)");
+var yAxisG = g.append("g").attr("class", "y axis");
+var x1AxisG = g1.append("g").attr("class", "x axis").attr("transform", "translate(0,500)");
+var y1AxisG = g1.append("g").attr("class", "y axis");
+
+var xAxis = d3.svg.axis().scale(x_scale).orient("bottom");
+var yAxis = d3.svg.axis().scale(y_scale).orient("left");
+var x1Axis = d3.svg.axis().scale(x1_scale).orient("bottom");
+var y1Axis = d3.svg.axis().scale(y1_scale).orient("left");
+
+// function for the x grid lines
+function make_x_axis(x_scale) {
+    return d3.svg.axis()
+        .scale(x_scale)
+        .orient("bottom")
+        .ticks(10)
+}
+
+// function for the y grid lines
+function make_y_axis(y_scale) {
+  return d3.svg.axis()
+      .scale(y_scale)
+      .orient("left")
+      .ticks(10)
+}
+
+function load(data){
+
+  // Scale the range of the data
+  x_scale.domain(d3.extent(data, function (d){ return d.sepal_length; }));
+  y_scale.domain(d3.extent(data, function (d){ return d.sepal_width; }));
+  x1_scale.domain(d3.extent(data, function (d){ return d.petal_length; }));
+  y1_scale.domain(d3.extent(data, function (d){ return d.petal_width; }));
+
+  var circles = svg.selectAll("circle").data(data);
+  var circles1 = svg1.selectAll("circle").data(data);
+
+  circles.enter().append("circle").attr("r", 5);
+  circles.attr("cx", function (d){ return x_scale(d.sepal_length); })
+       .attr("cy", function (d){ return y_scale(d.sepal_width); })
+       .attr("fill",  function (d){ return colorScale(d[colorColumn]); });
+
+  circles1.enter().append("circle").attr("r", 5);
+  circles1.attr("cx", function (d){ return x1_scale(d.petal_length); })
+       .attr("cy", function (d){ return y1_scale(d.petal_width); })
+       .attr("fill",  function (d){ return colorScale(d[colorColumn]); });
+
+
+  xAxisG.call(xAxis);
+  yAxisG.call(yAxis);
+  x1AxisG.call(x1Axis);
+  y1AxisG.call(y1Axis);
+
+  // Draw the x Grid lines
+  svg.append("g")
+      .attr("class", "grid")
+      .attr("transform", "translate(-5," + 500 + ")")
+      .call(make_x_axis(x_scale)
+          .tickSize(-500, 0, 0)
+          .tickFormat("")
+      )
+
+  // Draw the y Grid lines
+  svg.append("g")            
+      .attr("class", "grid")
+      .attr("transform", "translate(-5)")
+      .call(make_y_axis(y_scale)
+          .tickSize(-500, 0, 0)
+          .tickFormat("")
+      )
+
+  // Draw the x1 Grid lines
+  svg1.append("g")
+      .attr("class", "grid")
+      .attr("transform", "translate(-5," + 505 + ")")
+      .call(make_x_axis(x1_scale)
+          .tickSize(-500, 0, 0)
+          .tickFormat("")
+      )
+
+  // Draw the y1 Grid lines
+  svg1.append("g")            
+      .attr("class", "grid")
+      .attr("transform", "translate(-5,5)")
+      .call(make_y_axis(y1_scale)
+          .tickSize(-500, 0, 0)
+          .tickFormat("")
+      )
+
+ 
+  // Add the title
+  svg.append("text")
+      .attr("x", (500 / 2))     
+      .attr("y", 0 - (50 / 2))
+      .attr("text-anchor", "middle")
+      .style("font-size", "16px")
+      .style("text-decoration", "underline")
+      .text("Sepal length VS Sepal width");
+
+  // Add the title
+  svg1.append("text")
+      .attr("x", (500 / 2))     
+      .attr("y", 0 - (50 / 2))
+      .attr("text-anchor", "middle")
+      .style("font-size", "16px")
+      .style("text-decoration", "underline")
+      .text("Petal length VS Petal width");
+
+
+}
+
+function type(d){
+
+  d.sepal_length = +d.sepal_length;
+  d.sepal_width = +d.sepal_width;
+  d.petal_length = +d.petal_length;
+  d.petal_width = +d.petal_width;
+  return d;
+}
+
+d3.csv("iris.csv", type, load);
+
+
+
+</script>
+</html>
